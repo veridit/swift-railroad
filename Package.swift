@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-railroad",
+    name: "swift-railroad-diagrams",
     platforms: [.macOS(.v12), .iOS(.v15), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: [
         .library(name: "Railroad", targets: ["Railroad"]),

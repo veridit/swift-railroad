@@ -1,4 +1,4 @@
-# swift-railroad
+# swift-railroad-diagrams
 
 Railroad (syntax) diagrams as SVG, in pure Swift. No dependencies; runs on every
 Apple platform and on Linux.
@@ -11,6 +11,14 @@ that against SVGs the Rust crate produced.
 
 It started as the renderer behind the regex visualizer in
 [iTerm2](https://github.com/gnachman/iTerm2/pull/838).
+
+## Installation
+
+```swift
+.package(url: "https://github.com/veridit/swift-railroad-diagrams.git", from: "0.1.0")
+```
+
+Then depend on the `Railroad` product (and `RailroadImage` for PNG export).
 
 ## Usage
 

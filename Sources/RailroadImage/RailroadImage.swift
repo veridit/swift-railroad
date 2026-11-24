@@ -1,6 +1,6 @@
 //
 //  RailroadImage.swift
-//  swift-railroad
+//  swift-railroad-diagrams
 //
 //  Raster output (PNG) for railroad diagrams, through WebKit's SVG renderer.
 //  Lives in its own target so the core library stays Foundation-only and

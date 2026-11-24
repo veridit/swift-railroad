@@ -1,6 +1,6 @@
 //
 //  Stylesheet.swift
-//  swift-railroad
+//  swift-railroad-diagrams
 //
 //  Port of `Stylesheet` in lib.rs of the railroad crate 0.3.12
 //  (https://github.com/lukaslueg/railroad), Copyright (c) 2018 Lukas Lueg,

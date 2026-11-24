@@ -1,6 +1,6 @@
 //
 //  RailroadAnnotations.swift
-//  swift-railroad
+//  swift-railroad-diagrams
 //
 //  Swift port of railroad crate 0.3.12 wrappers, annotations, and continuation
 //  markers, Copyright (c) 2018 Lukas Lueg, MIT License.

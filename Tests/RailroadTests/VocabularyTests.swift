@@ -1,6 +1,6 @@
 //
 //  VocabularyTests.swift
-//  swift-railroad
+//  swift-railroad-diagrams
 //
 //  The 27 diagrams of the railroad crate's README "visual vocabulary"
 //  (examples/readme.rs), rebuilt in Swift and compared byte for byte with the
