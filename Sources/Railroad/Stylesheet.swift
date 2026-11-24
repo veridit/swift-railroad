@@ -10,7 +10,7 @@
 import Foundation
 
 /// The bundled CSS themes.
-enum RailroadStylesheet: String, CaseIterable {
+public enum RailroadStylesheet: String, CaseIterable {
     case light
     case dark
     /// Light theme without CSS features that simple SVG renderers lack.
@@ -22,14 +22,14 @@ enum RailroadStylesheet: String, CaseIterable {
     case navy
     case ayu
 
-    var isLight: Bool {
+    public var isLight: Bool {
         switch self {
         case .light, .lightRendersafe, .rust: return true
         default: return false
         }
     }
 
-    var toDark: RailroadStylesheet {
+    public var toDark: RailroadStylesheet {
         switch self {
         case .light, .rust: return .dark
         case .lightRendersafe, .darkRendersafe: return .darkRendersafe
@@ -37,7 +37,7 @@ enum RailroadStylesheet: String, CaseIterable {
         }
     }
 
-    var toLight: RailroadStylesheet {
+    public var toLight: RailroadStylesheet {
         switch self {
         case .dark, .coal, .navy, .ayu: return .light
         case .lightRendersafe, .darkRendersafe: return .lightRendersafe
@@ -46,7 +46,7 @@ enum RailroadStylesheet: String, CaseIterable {
     }
 
     /// The CSS text.
-    var css: String {
+    public var css: String {
         guard let url = Bundle.module.url(forResource: "stylesheet_\(rawValue)", withExtension: "css"),
               let text = try? String(contentsOf: url, encoding: .utf8) else {
             preconditionFailure("Missing bundled stylesheet_\(rawValue).css")

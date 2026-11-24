@@ -24,25 +24,32 @@
 
 import Foundation
 
-enum RailroadDSL {
-    struct ParseError: Error, Equatable {
-        var offset: Int
-        var message: String
+/// Parses railroad expressions into drawable diagrams.
+public enum RailroadDSL {
+    /// A parse failure with its source offset and diagnostic message.
+    public struct ParseError: Error, Equatable {
+        public init(offset: Int, message: String) {
+            self.offset = offset
+            self.message = message
+        }
+
+        public var offset: Int
+        public var message: String
     }
 
-    static func isValid(_ source: String) -> Bool {
+    public static func isValid(_ source: String) -> Bool {
         (try? parse(source)) != nil
     }
 
     /// One tree per top-level expression, not yet wrapped in start and end markers.
-    static func parse(_ source: String) throws -> [any RailroadNode] {
+    public static func parse(_ source: String) throws -> [any RailroadNode] {
         var parser = Parser(Array(source.unicodeScalars))
         return try parser.root()
     }
 
     /// The diagram railroad_dsl's `compile` builds: each top-level expression
     /// gets start and end markers, and several are stacked in a vertical grid.
-    static func diagram(_ source: String, css: String?) throws -> RailroadDiagram {
+    public static func diagram(_ source: String, css: String?) throws -> RailroadDiagram {
         var trees: [any RailroadNode] = try parse(source).map { tree in
             RailroadSequence(children: [RailroadSimpleStart(), tree, RailroadSimpleEnd()])
         }
@@ -50,7 +57,7 @@ enum RailroadDSL {
         return RailroadDiagram(root: root, css: css)
     }
 
-    static func svg(_ source: String, css: String?) throws -> String {
+    public static func svg(_ source: String, css: String?) throws -> String {
         try diagram(source, css: css).svg
     }
 

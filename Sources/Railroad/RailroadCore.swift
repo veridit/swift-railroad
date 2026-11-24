@@ -25,7 +25,8 @@ enum Railroad {
 
 // MARK: - Direction and arcs
 
-enum RailroadHDir {
+/// Horizontal direction of the rails and their arrows.
+public enum RailroadHDir {
     case ltr
     case rtl
 
@@ -37,7 +38,8 @@ enum RailroadHDir {
     }
 }
 
-enum RailroadArc {
+/// A quarter-circle turn connecting two rail directions.
+public enum RailroadArc {
     case eastToNorth
     case eastToSouth
     case northToEast
@@ -50,7 +52,8 @@ enum RailroadArc {
 
 // MARK: - Node
 
-protocol RailroadNode {
+/// A drawable railroad component with entry geometry.
+public protocol RailroadNode {
     /// Distance from the top of the node to the line that enters and leaves it.
     var entryHeight: Int { get }
     var height: Int { get }
@@ -58,7 +61,7 @@ protocol RailroadNode {
     func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir)
 }
 
-extension RailroadNode {
+public extension RailroadNode {
     var heightBelowEntry: Int { height - entryHeight }
 }
 
@@ -74,10 +77,13 @@ extension Array where Element == any RailroadNode {
 // MARK: - SVG writer
 
 /// Streams SVG text. Port of `svg::Renderer` and `svg::StartTag`.
-final class RailroadRenderer {
-    private(set) var output = ""
+public final class RailroadRenderer {
+    public private(set) var output = ""
 
-    final class StartTag {
+    public init() {}
+
+    /// An SVG opening tag with ordered attributes.
+    public final class StartTag {
         private let renderer: RailroadRenderer
         private var attributes: [(String, String)] = []
 
@@ -86,7 +92,7 @@ final class RailroadRenderer {
         }
 
         /// Setting a key twice keeps its first position and the last value.
-        func attr(_ key: String, _ value: String) {
+        public func attr(_ key: String, _ value: String) {
             if let i = attributes.firstIndex(where: { $0.0 == key }) {
                 attributes[i].1 = value
             } else {
@@ -94,7 +100,7 @@ final class RailroadRenderer {
             }
         }
 
-        func attr(_ key: String, _ value: Int) {
+        public func attr(_ key: String, _ value: Int) {
             attr(key, String(value))
         }
 
@@ -115,38 +121,38 @@ final class RailroadRenderer {
             }
         }
 
-        func finish() {
+        public func finish() {
             writeAttributes()
             renderer.output += ">\n"
         }
 
-        func finishEmpty() {
+        public func finishEmpty() {
             writeAttributes()
             renderer.output += "/>\n"
         }
     }
 
-    func startElement(_ name: String) -> StartTag {
+    public func startElement(_ name: String) -> StartTag {
         output += "<"
         output += name
         return StartTag(renderer: self)
     }
 
-    func endElement(_ name: String) {
+    public func endElement(_ name: String) {
         output += "</"
         output += name
         output += ">\n"
     }
 
-    func writeText(_ text: String) {
+    public func writeText(_ text: String) {
         output += Self.escapeMinimal(text)
     }
 
-    func writeRaw(_ text: String) {
+    public func writeRaw(_ text: String) {
         output += text
     }
 
-    func path(_ path: RailroadPathData, class cls: String? = nil) {
+    public func path(_ path: RailroadPathData, class cls: String? = nil) {
         let tag = startElement("path")
         tag.attr("d", path.text)
         if let cls {
@@ -165,7 +171,7 @@ final class RailroadRenderer {
 
     // Shared drawing helpers (the RenderBackend calls in lib.rs).
 
-    func rect(x: Int, y: Int, width: Int, height: Int, radius: Int? = nil) {
+    public func rect(x: Int, y: Int, width: Int, height: Int, radius: Int? = nil) {
         let tag = startElement("rect")
         tag.attr("x", x)
         tag.attr("y", y)
@@ -178,7 +184,7 @@ final class RailroadRenderer {
         tag.finishEmpty()
     }
 
-    func circle(cx: Int, cy: Int, radius: Double, opacity: String) {
+    public func circle(cx: Int, cy: Int, radius: Double, opacity: String) {
         let tag = startElement("circle")
         tag.attr("cx", cx)
         tag.attr("cy", cy)
@@ -187,7 +193,7 @@ final class RailroadRenderer {
         tag.finishEmpty()
     }
 
-    func text(x: Int, y: Int, _ text: String, class cls: String? = nil) {
+    public func text(x: Int, y: Int, _ text: String, class cls: String? = nil) {
         textElement("text", text) { tag in
             if let cls {
                 tag.attr("class", cls)
@@ -198,7 +204,7 @@ final class RailroadRenderer {
     }
 
     /// `<g class=...>` around whatever `body` writes.
-    func group(class cls: String, attributes: [String: String] = [:], body: () -> Void) {
+    public func group(class cls: String, attributes: [String: String] = [:], body: () -> Void) {
         let tag = startElement("g")
         tag.attrs(attributes)
         tag.attr("class", cls)
@@ -208,7 +214,7 @@ final class RailroadRenderer {
     }
 
     /// `<g transform=...>` around a child drawn at the origin.
-    func transformed(_ child: any RailroadNode, transform: String, hDir: RailroadHDir) {
+    public func transformed(_ child: any RailroadNode, transform: String, hDir: RailroadHDir) {
         let tag = startElement("g")
         tag.attr("transform", transform)
         tag.finish()
@@ -217,7 +223,7 @@ final class RailroadRenderer {
     }
 
     /// The box with a centered label that Terminal and NonTerminal draw.
-    func textBox(x: Int, y: Int, width: Int, height: Int, entryHeight: Int, label: String, rounded: Bool) {
+    public func textBox(x: Int, y: Int, width: Int, height: Int, entryHeight: Int, label: String, rounded: Bool) {
         rect(x: x, y: y, width: width, height: height, radius: rounded ? 10 : nil)
         text(x: x + width / 2, y: y + entryHeight + 5, label)
     }
@@ -253,27 +259,27 @@ final class RailroadRenderer {
 // MARK: - Path data
 
 /// Port of `svg::PathData`: builds the `d` attribute of a path.
-struct RailroadPathData {
+public struct RailroadPathData {
     static let padding = 5
 
     private(set) var text = ""
     let hDir: RailroadHDir
 
-    init(_ hDir: RailroadHDir) {
+    public init(_ hDir: RailroadHDir) {
         self.hDir = hDir
     }
 
-    func moveTo(_ x: Int, _ y: Int) -> Self { appending(" M \(x) \(y)") }
-    func moveRel(_ x: Int, _ y: Int) -> Self { appending(" m \(x) \(y)") }
-    func lineRel(_ x: Int, _ y: Int) -> Self { appending(" l \(x) \(y)") }
-    func close() -> Self { appending(" z") }
+    public func moveTo(_ x: Int, _ y: Int) -> Self { appending(" M \(x) \(y)") }
+    public func moveRel(_ x: Int, _ y: Int) -> Self { appending(" m \(x) \(y)") }
+    public func lineRel(_ x: Int, _ y: Int) -> Self { appending(" l \(x) \(y)") }
+    public func close() -> Self { appending(" z") }
 
-    func cubicRel(_ x1: Int, _ y1: Int, _ x2: Int, _ y2: Int, _ x: Int, _ y: Int) -> Self {
+    public func cubicRel(_ x1: Int, _ y1: Int, _ x2: Int, _ y2: Int, _ x: Int, _ y: Int) -> Self {
         appending(" c \(x1) \(y1) \(x2) \(y2) \(x) \(y)")
     }
 
     /// A horizontal line, with an arrow head halfway along stretches longer than 50.
-    func horizontal(_ h: Int) -> Self {
+    public func horizontal(_ h: Int) -> Self {
         let p = appending(" h \(h)")
         let pad = Self.padding
         switch (h > 50, h < -50, hDir) {
@@ -291,7 +297,7 @@ struct RailroadPathData {
     }
 
     /// Like `horizontal`, but drops the arrow when there is no room for it.
-    func horizontalWithClearance(_ h: Int, above: Int, below: Int) -> Self {
+    public func horizontalWithClearance(_ h: Int, above: Int, below: Int) -> Self {
         if above >= Self.padding && below >= Self.padding {
             return horizontal(h)
         }
@@ -299,7 +305,7 @@ struct RailroadPathData {
     }
 
     /// A vertical line, with an arrow head halfway along stretches longer than 50.
-    func vertical(_ h: Int) -> Self {
+    public func vertical(_ h: Int) -> Self {
         let p = appending(" v \(h)")
         if (-50...50).contains(h) {
             return p
@@ -313,7 +319,7 @@ struct RailroadPathData {
             .moveRel(0, h / 2 - 3)
     }
 
-    func arc(_ radius: Int, _ kind: RailroadArc) -> Self {
+    public func arc(_ radius: Int, _ kind: RailroadArc) -> Self {
         let (sweep, x, y): (Int, Int, Int)
         switch kind {
         case .eastToNorth: (sweep, x, y) = (1, -radius, -radius)
@@ -338,20 +344,27 @@ struct RailroadPathData {
 // MARK: - Diagram
 
 /// The outermost `<svg>` element. Port of `Diagram` in lib.rs.
-struct RailroadDiagram: RailroadNode {
+public struct RailroadDiagram: RailroadNode {
+    public init(root: any RailroadNode, css: String? = nil, extraAttributes: [String: String] = [:], title: String? = nil) {
+        self.root = root
+        self.css = css
+        self.extraAttributes = extraAttributes
+        self.title = title
+    }
+
     static let padding = 10
 
-    var root: any RailroadNode
-    var css: String?
-    var extraAttributes: [String: String] = [:]
+    public var root: any RailroadNode
+    public var css: String?
+    public var extraAttributes: [String: String] = [:]
     /// Text for a `<title>` element (hover text and accessibility description).
-    var title: String?
+    public var title: String?
 
-    var entryHeight: Int { 0 }
-    var height: Int { Self.padding + root.height + Self.padding }
-    var width: Int { Self.padding + root.width + Self.padding }
+    public var entryHeight: Int { 0 }
+    public var height: Int { Self.padding + root.height + Self.padding }
+    public var width: Int { Self.padding + root.width + Self.padding }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let tag = out.startElement("svg")
         tag.attrs(extraAttributes)
         tag.attr("xmlns", "http://www.w3.org/2000/svg")
@@ -380,7 +393,7 @@ struct RailroadDiagram: RailroadNode {
         out.endElement("svg")
     }
 
-    var svg: String {
+    public var svg: String {
         let out = RailroadRenderer()
         render(out, x: 0, y: 0, hDir: .ltr)
         return out.output
@@ -389,23 +402,29 @@ struct RailroadDiagram: RailroadNode {
 
 // MARK: - Leaf nodes from lib.rs
 
-struct RailroadEmpty: RailroadNode {
-    var entryHeight: Int { 0 }
-    var height: Int { 0 }
-    var width: Int { 0 }
+/// An empty component without rails or text.
+public struct RailroadEmpty: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 0 }
+    public var height: Int { 0 }
+    public var width: Int { 0 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.startElement("g").finish()
         out.endElement("g")
     }
 }
 
-struct RailroadSimpleStart: RailroadNode {
-    var entryHeight: Int { 5 }
-    var height: Int { 10 }
-    var width: Int { 15 }
+/// A circular start marker with an outgoing rail.
+public struct RailroadSimpleStart: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 5 }
+    public var height: Int { 10 }
+    public var width: Int { 15 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.path(RailroadPathData(hDir)
             .moveTo(x, y + 5)
             .arc(5, .southToEast)
@@ -417,12 +436,15 @@ struct RailroadSimpleStart: RailroadNode {
     }
 }
 
-struct RailroadSimpleEnd: RailroadNode {
-    var entryHeight: Int { 5 }
-    var height: Int { 10 }
-    var width: Int { 15 }
+/// A circular end marker with an incoming rail.
+public struct RailroadSimpleEnd: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 5 }
+    public var height: Int { 10 }
+    public var width: Int { 15 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.path(RailroadPathData(hDir)
             .moveTo(x, y + 5)
             .horizontal(5)
@@ -433,12 +455,15 @@ struct RailroadSimpleEnd: RailroadNode {
     }
 }
 
-struct RailroadStart: RailroadNode {
-    var entryHeight: Int { 10 }
-    var height: Int { 20 }
-    var width: Int { 20 }
+/// A double-bar start marker with an outgoing rail.
+public struct RailroadStart: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 10 }
+    public var height: Int { 20 }
+    public var width: Int { 20 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.path(RailroadPathData(hDir)
             .moveTo(x, y)
             .vertical(20)
@@ -449,12 +474,15 @@ struct RailroadStart: RailroadNode {
     }
 }
 
-struct RailroadEnd: RailroadNode {
-    var entryHeight: Int { 10 }
-    var height: Int { 20 }
-    var width: Int { 20 }
+/// A double-bar end marker with an incoming rail.
+public struct RailroadEnd: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 10 }
+    public var height: Int { 20 }
+    public var width: Int { 20 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.path(RailroadPathData(hDir)
             .moveTo(x, y + 10)
             .horizontal(20)

@@ -65,15 +65,20 @@ enum RailroadTextWidth {
 }
 
 /// A rounded box with literal text. Port of `Terminal`.
-struct RailroadTerminal: RailroadNode {
-    var label: String
-    var attributes: [String: String] = [:]
+public struct RailroadTerminal: RailroadNode {
+    public init(label: String, attributes: [String: String] = [:]) {
+        self.label = label
+        self.attributes = attributes
+    }
 
-    var entryHeight: Int { 11 }
-    var height: Int { entryHeight * 2 }
-    var width: Int { Railroad.textWidth(label) * 8 + 20 }
+    public var label: String
+    public var attributes: [String: String] = [:]
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 11 }
+    public var height: Int { entryHeight * 2 }
+    public var width: Int { Railroad.textWidth(label) * 8 + 20 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "terminal", attributes: attributes) {
             out.textBox(x: x, y: y, width: width, height: height, entryHeight: entryHeight, label: label, rounded: true)
         }
@@ -81,15 +86,20 @@ struct RailroadTerminal: RailroadNode {
 }
 
 /// A square box naming another rule. Port of `NonTerminal`.
-struct RailroadNonTerminal: RailroadNode {
-    var label: String
-    var attributes: [String: String] = [:]
+public struct RailroadNonTerminal: RailroadNode {
+    public init(label: String, attributes: [String: String] = [:]) {
+        self.label = label
+        self.attributes = attributes
+    }
 
-    var entryHeight: Int { 11 }
-    var height: Int { entryHeight * 2 }
-    var width: Int { Railroad.textWidth(label) * 8 + 20 }
+    public var label: String
+    public var attributes: [String: String] = [:]
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 11 }
+    public var height: Int { entryHeight * 2 }
+    public var width: Int { Railroad.textWidth(label) * 8 + 20 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "nonterminal", attributes: attributes) {
             out.textBox(x: x, y: y, width: width, height: height, entryHeight: entryHeight, label: label, rounded: false)
         }
@@ -97,15 +107,20 @@ struct RailroadNonTerminal: RailroadNode {
 }
 
 /// Free text without a box. Port of `Comment`.
-struct RailroadComment: RailroadNode {
-    var text: String
-    var attributes: [String: String] = [:]
+public struct RailroadComment: RailroadNode {
+    public init(text: String, attributes: [String: String] = [:]) {
+        self.text = text
+        self.attributes = attributes
+    }
 
-    var entryHeight: Int { 10 }
-    var height: Int { 20 }
-    var width: Int { Railroad.textWidth(text) * 7 + 10 }
+    public var text: String
+    public var attributes: [String: String] = [:]
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 10 }
+    public var height: Int { 20 }
+    public var width: Int { Railroad.textWidth(text) * 7 + 10 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let tag = out.startElement("text")
         tag.attrs(attributes)
         tag.attr("class", "comment")

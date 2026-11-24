@@ -10,20 +10,25 @@
 import Foundation
 
 /// Children side by side, joined by short lines. Port of `Sequence`.
-struct RailroadSequence: RailroadNode {
+public struct RailroadSequence: RailroadNode {
+    public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
+        self.children = children
+        self.attributes = attributes
+    }
+
     static let spacing = 10
 
-    var children: [any RailroadNode]
-    var attributes: [String: String] = [:]
+    public var children: [any RailroadNode]
+    public var attributes: [String: String] = [:]
 
-    var entryHeight: Int { children.maxEntryHeight }
-    var height: Int { children.maxEntryHeight + children.maxHeightBelowEntry }
-    var width: Int {
+    public var entryHeight: Int { children.maxEntryHeight }
+    public var height: Int { children.maxEntryHeight + children.maxHeightBelowEntry }
+    public var width: Int {
         let total = children.totalWidth
         return children.count > 1 ? total + (children.count - 1) * Self.spacing : total
     }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let entry = entryHeight
         out.group(class: "sequence", attributes: attributes) {
             var runningX = 0
@@ -43,12 +48,17 @@ struct RailroadSequence: RailroadNode {
 }
 
 /// Children connected from top to bottom. Port of `Stack`.
-struct RailroadStack: RailroadNode {
+public struct RailroadStack: RailroadNode {
+    public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
+        self.children = children
+        self.attributes = attributes
+    }
+
     static let spacing = 10
     static let padding = Railroad.arcRadius * 2
 
-    var children: [any RailroadNode]
-    var attributes: [String: String] = [:]
+    public var children: [any RailroadNode]
+    public var attributes: [String: String] = [:]
 
     private var sidePadding: Int { children.count > 1 ? Self.padding : 0 }
 
@@ -59,19 +69,19 @@ struct RailroadStack: RailroadNode {
             + max(0, Railroad.arcRadius - next.entryHeight)
     }
 
-    var entryHeight: Int { children.first?.entryHeight ?? 0 }
-    var height: Int {
+    public var entryHeight: Int { children.first?.entryHeight ?? 0 }
+    public var height: Int {
         zip(children, children.dropFirst()).reduce(0) {
             $0 + paddedHeight($1.0, next: $1.1)
         } + (children.last?.height ?? 0)
     }
-    var width: Int {
+    public var width: Int {
         let lastWidth = children.last?.width ?? 0
         let needsExtra = children.dropLast().contains { $0.width >= lastWidth }
         return sidePadding + children.maxWidth + sidePadding + (needsExtra ? Railroad.arcRadius : 0)
     }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let radius = Railroad.arcRadius
         let leftPadding = sidePadding
         let entry = entryHeight
@@ -116,11 +126,16 @@ struct RailroadStack: RailroadNode {
 }
 
 /// Alternatives arranged vertically. Port of `Choice`.
-struct RailroadChoice: RailroadNode {
+public struct RailroadChoice: RailroadNode {
+    public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
+        self.children = children
+        self.attributes = attributes
+    }
+
     static let spacing = 10
 
-    var children: [any RailroadNode]
-    var attributes: [String: String] = [:]
+    public var children: [any RailroadNode]
+    public var attributes: [String: String] = [:]
 
     private var innerPadding: Int { children.count > 1 ? Railroad.arcRadius * 2 : 0 }
 
@@ -128,16 +143,16 @@ struct RailroadChoice: RailroadNode {
         max(Railroad.arcRadius, child.entryHeight) + child.heightBelowEntry + Self.spacing
     }
 
-    var entryHeight: Int { children.first?.entryHeight ?? 0 }
-    var height: Int {
+    public var entryHeight: Int { children.first?.entryHeight ?? 0 }
+    public var height: Int {
         guard let first = children.first else { return 0 }
         if children.count == 1 { return first.height }
         return entryHeight + max(Railroad.arcRadius, Self.spacing + first.heightBelowEntry)
             + children.dropFirst().reduce(0) { $0 + paddedHeight($1) } - Self.spacing
     }
-    var width: Int { innerPadding + children.maxWidth + innerPadding }
+    public var width: Int { innerPadding + children.maxWidth + innerPadding }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let radius = Railroad.arcRadius
         let padding = innerPadding
         let maxChildWidth = children.maxWidth

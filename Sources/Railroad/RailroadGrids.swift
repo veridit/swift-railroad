@@ -4,16 +4,21 @@
 import Foundation
 
 /// Independent children laid out left to right without connecting paths.
-struct RailroadHorizontalGrid: RailroadNode {
+public struct RailroadHorizontalGrid: RailroadNode {
+    public init(children: [any RailroadNode] = [], attributes: [String: String] = [:]) {
+        self.children = children
+        self.attributes = attributes
+    }
+
     static let spacing = Railroad.arcRadius
-    var children: [any RailroadNode] = []
-    var attributes: [String: String] = [:]
+    public var children: [any RailroadNode] = []
+    public var attributes: [String: String] = [:]
 
-    var entryHeight: Int { 0 }
-    var height: Int { children.maxHeight }
-    var width: Int { children.totalWidth + max(0, children.count - 1) * Self.spacing }
+    public var entryHeight: Int { 0 }
+    public var height: Int { children.maxHeight }
+    public var width: Int { children.totalWidth + max(0, children.count - 1) * Self.spacing }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "horizontalgrid", attributes: attributes) {
             var runningX = x
             for child in children {
@@ -25,10 +30,15 @@ struct RailroadHorizontalGrid: RailroadNode {
 }
 
 /// Ordered selection of one or more children, allowing prefixes and suffixes to be skipped.
-struct RailroadSubsequence: RailroadNode {
+public struct RailroadSubsequence: RailroadNode {
+    public init(children: [any RailroadNode] = [], attributes: [String: String] = [:]) {
+        self.children = children
+        self.attributes = attributes
+    }
+
     static let spacing = 10
-    var children: [any RailroadNode] = []
-    var attributes: [String: String] = [:]
+    public var children: [any RailroadNode] = []
+    public var attributes: [String: String] = [:]
 
     private func routingWidth(_ child: any RailroadNode) -> Int {
         max(child.width, Railroad.arcRadius * 2)
@@ -38,21 +48,21 @@ struct RailroadSubsequence: RailroadNode {
         max(Railroad.arcRadius * 2, child.heightBelowEntry + Self.spacing)
     }
 
-    var entryHeight: Int {
+    public var entryHeight: Int {
         if children.count <= 1 { return children.first?.entryHeight ?? 0 }
         return RailroadPathData.padding + max(Railroad.arcRadius * 2, children.maxEntryHeight + Self.spacing)
     }
-    var height: Int {
+    public var height: Int {
         if children.count <= 1 { return children.first?.height ?? 0 }
         return entryHeight + max(children[0].heightBelowEntry,
                                  children.dropFirst().map(bypassDepth).max()! + RailroadPathData.padding)
     }
-    var width: Int {
+    public var width: Int {
         if children.count <= 1 { return children.first?.width ?? 0 }
         return children.map(routingWidth).reduce(0, +) + (children.count * 4 - 2) * Railroad.arcRadius
     }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "subsequence", attributes: attributes) {
             if children.count <= 1 {
                 children.first?.render(out, x: x, y: y, hDir: hDir)
@@ -91,11 +101,16 @@ struct RailroadSubsequence: RailroadNode {
 }
 
 /// Alternatives in columns, with separate entry and exit routing for each alternative.
-struct RailroadMultiChoice: RailroadNode {
+public struct RailroadMultiChoice: RailroadNode {
+    public init(columns: [[any RailroadNode]] = [], attributes: [String: String] = [:]) {
+        self.columns = columns
+        self.attributes = attributes
+    }
+
     static let spacing = 10
     static let columnSpacing = Railroad.arcRadius
-    var columns: [[any RailroadNode]] = []
-    var attributes: [String: String] = [:]
+    public var columns: [[any RailroadNode]] = []
+    public var attributes: [String: String] = [:]
 
     private struct ColumnLayout {
         let children: [any RailroadNode]
@@ -155,9 +170,9 @@ struct RailroadMultiChoice: RailroadNode {
                 last.xOffset + last.width + r)
     }
 
-    var entryHeight: Int { dimensions(layout).entry }
-    var height: Int { dimensions(layout).height }
-    var width: Int { dimensions(layout).width }
+    public var entryHeight: Int { dimensions(layout).entry }
+    public var height: Int { dimensions(layout).height }
+    public var width: Int { dimensions(layout).width }
 
     private func sectionedVertical(_ out: RailroadRenderer, hDir: RailroadHDir, x: Int,
                                    startY: Int, ends: [Int], finalY: Int) {
@@ -171,7 +186,7 @@ struct RailroadMultiChoice: RailroadNode {
         }
     }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let layout = layout
         let geo = dimensions(layout)
         out.group(class: "multichoice", attributes: attributes) {

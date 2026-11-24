@@ -9,23 +9,31 @@
 import Foundation
 
 /// Browsing contexts for a link's optional target attribute.
-enum RailroadLinkTarget: String {
+public enum RailroadLinkTarget: String {
     case blank = "_blank"
     case parent = "_parent"
     case top = "_top"
 }
 
-struct RailroadLink: RailroadNode {
-    var inner: any RailroadNode
-    var uri: String
-    var target: RailroadLinkTarget? = nil
-    var attributes: [String: String] = [:]
+/// A child wrapped in a clickable SVG link.
+public struct RailroadLink: RailroadNode {
+    public init(inner: any RailroadNode, uri: String, target: RailroadLinkTarget? = nil, attributes: [String: String] = [:]) {
+        self.inner = inner
+        self.uri = uri
+        self.target = target
+        self.attributes = attributes
+    }
 
-    var entryHeight: Int { inner.entryHeight }
-    var height: Int { inner.height }
-    var width: Int { inner.width }
+    public var inner: any RailroadNode
+    public var uri: String
+    public var target: RailroadLinkTarget? = nil
+    public var attributes: [String: String] = [:]
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { inner.entryHeight }
+    public var height: Int { inner.height }
+    public var width: Int { inner.width }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let tag = out.startElement("a")
         tag.attrs(attributes)
         tag.attr("class", "link")
@@ -37,27 +45,39 @@ struct RailroadLink: RailroadNode {
     }
 }
 
-enum RailroadHorizontalAlignment {
+/// Horizontal placement of a child within reserved space.
+public enum RailroadHorizontalAlignment {
     case start
     case centered
     case end
 }
 
-enum RailroadVerticalAlignment {
+/// Vertical placement of a child within reserved space.
+public enum RailroadVerticalAlignment {
     case top
     case centered
     case bottom
 }
 
 /// Reserve minimum dimensions without resizing the child.
-struct RailroadAlignment: RailroadNode {
-    var inner: any RailroadNode
-    var minWidth: Int
-    var minHeight: Int
-    var horizontal: RailroadHorizontalAlignment
-    var vertical: RailroadVerticalAlignment
-    var connectRails: Bool
-    var attributes: [String: String] = [:]
+public struct RailroadAlignment: RailroadNode {
+    public init(inner: any RailroadNode, minWidth: Int, minHeight: Int, horizontal: RailroadHorizontalAlignment, vertical: RailroadVerticalAlignment, connectRails: Bool, attributes: [String: String] = [:]) {
+        self.inner = inner
+        self.minWidth = minWidth
+        self.minHeight = minHeight
+        self.horizontal = horizontal
+        self.vertical = vertical
+        self.connectRails = connectRails
+        self.attributes = attributes
+    }
+
+    public var inner: any RailroadNode
+    public var minWidth: Int
+    public var minHeight: Int
+    public var horizontal: RailroadHorizontalAlignment
+    public var vertical: RailroadVerticalAlignment
+    public var connectRails: Bool
+    public var attributes: [String: String] = [:]
 
     private var verticalOffset: Int {
         switch vertical {
@@ -66,11 +86,11 @@ struct RailroadAlignment: RailroadNode {
         case .bottom: return height - inner.height
         }
     }
-    var entryHeight: Int { inner.entryHeight + verticalOffset }
-    var height: Int { max(inner.height, minHeight) }
-    var width: Int { max(inner.width, minWidth) }
+    public var entryHeight: Int { inner.entryHeight + verticalOffset }
+    public var height: Int { max(inner.height, minHeight) }
+    public var width: Int { max(inner.width, minWidth) }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let extraWidth = width - inner.width
         let dx: Int
         switch (horizontal, hDir) {
@@ -91,13 +111,13 @@ struct RailroadAlignment: RailroadNode {
 }
 
 /// Uniform scaling, either adjusted to integral rail coordinates or precise.
-struct RailroadScale: RailroadNode {
-    var inner: any RailroadNode
-    let requestedScale: Double
-    let precise: Bool
-    var attributes: [String: String] = [:]
+public struct RailroadScale: RailroadNode {
+    public var inner: any RailroadNode
+    public let requestedScale: Double
+    public let precise: Bool
+    public var attributes: [String: String] = [:]
 
-    init(inner: any RailroadNode, scale: Double, precise: Bool = false) {
+    public init(inner: any RailroadNode, scale: Double, precise: Bool = false) {
         precondition(scale.isFinite && scale >= 0, "scale must be finite and nonnegative")
         self.inner = inner
         self.requestedScale = scale
@@ -170,11 +190,11 @@ struct RailroadScale: RailroadNode {
         return (width, height, entry, factor, offset)
     }
 
-    var width: Int { requestedScale == 0 ? 0 : scaledWidth(inner.width) }
-    var height: Int { layout.height }
-    var entryHeight: Int { layout.entry }
+    public var width: Int { requestedScale == 0 ? 0 : scaledWidth(inner.width) }
+    public var height: Int { layout.height }
+    public var entryHeight: Int { layout.entry }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         guard requestedScale != 0 else { return }
         let layout = layout
         let factor = railroadRustFloat(layout.factor)
@@ -207,20 +227,28 @@ fileprivate func railroadRustFloat(_ value: Double) -> String {
     return sign + digits[..<split] + "." + digits[split...]
 }
 
-struct RailroadAnnotation: RailroadNode {
-    enum Direction { case none, ahead, behind }
-    var inner: any RailroadNode
-    var direction: Direction = .none
-    var attributes: [String: String] = [:]
+/// A diamond annotation marker above a child.
+public struct RailroadAnnotation: RailroadNode {
+    public init(inner: any RailroadNode, direction: Direction = .none, attributes: [String: String] = [:]) {
+        self.inner = inner
+        self.direction = direction
+        self.attributes = attributes
+    }
+
+    /// Direction of the annotation marker along the rail.
+    public enum Direction { case none, ahead, behind }
+    public var inner: any RailroadNode
+    public var direction: Direction = .none
+    public var attributes: [String: String] = [:]
 
     static func newAhead(inner: any RailroadNode) -> Self { Self(inner: inner, direction: .ahead) }
     static func newBehind(inner: any RailroadNode) -> Self { Self(inner: inner, direction: .behind) }
 
-    var entryHeight: Int { 16 }
-    var height: Int { 48 + inner.height }
-    var width: Int { max(inner.width, 64) }
+    public var entryHeight: Int { 16 }
+    public var height: Int { 48 + inner.height }
+    public var width: Int { max(inner.width, 64) }
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         let cx = x + width / 2
         let railY = y + entryHeight
         out.group(class: "annotation", attributes: attributes) {
@@ -245,36 +273,45 @@ struct RailroadAnnotation: RailroadNode {
     }
 }
 
-struct RailroadContinuationStart: RailroadNode {
-    var entryHeight: Int { 5 }
-    var height: Int { 10 }
-    var width: Int { 30 }
+/// Fading dots leading into a rail.
+public struct RailroadContinuationStart: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 5 }
+    public var height: Int { 10 }
+    public var width: Int { 30 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "continuation-start") {
             railroadEmitContinuation(out, x: x, y: y, hDir: hDir, isStart: true)
         }
     }
 }
 
-struct RailroadContinuationEnd: RailroadNode {
-    var entryHeight: Int { 5 }
-    var height: Int { 10 }
-    var width: Int { 30 }
+/// A rail leading into fading dots.
+public struct RailroadContinuationEnd: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 5 }
+    public var height: Int { 10 }
+    public var width: Int { 30 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "continuation-end") {
             railroadEmitContinuation(out, x: x, y: y, hDir: hDir, isStart: false)
         }
     }
 }
 
-struct RailroadContinuation: RailroadNode {
-    var entryHeight: Int { 5 }
-    var height: Int { 10 }
-    var width: Int { 38 }
+/// Dots between two short continuation rails.
+public struct RailroadContinuation: RailroadNode {
+    public init() {}
 
-    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+    public var entryHeight: Int { 5 }
+    public var height: Int { 10 }
+    public var width: Int { 38 }
+
+    public func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
         out.group(class: "continuation") {
             for offset in [11, 19, 27] {
                 out.circle(cx: x + offset, cy: y + 5, radius: 2.5, opacity: "0.5")
