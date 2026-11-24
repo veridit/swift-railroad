@@ -65,6 +65,18 @@ continuation markers.
 `darkRendersafe` for SVG renderers with limited CSS support. The CSS is copied
 unchanged from the Rust crate.
 
+## PNG export (macOS)
+
+The separate `RailroadImage` product renders a diagram through WebKit, so the
+core `Railroad` library needs nothing but Foundation:
+
+```swift
+import RailroadImage
+
+let png = try await RailroadImage.png(diagram, scale: 2)   // Data
+let image = try await RailroadImage.image(diagram)         // NSImage
+```
+
 ## Tests
 
 `swift test` runs the ported upstream unit tests, plus byte-for-byte comparisons
