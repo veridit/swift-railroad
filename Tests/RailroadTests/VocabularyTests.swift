@@ -67,8 +67,9 @@ final class VocabularyTests: XCTestCase {
     }
 
     func testScale() throws {
-        try check("scale", RailroadRepeat(inner: RailroadScale(inner: c("Scaled up"), scale: 1.5),
-                                          repeat: RailroadScale(inner: c("Scaled down"), scale: 0.75)))
+        try check("scale", RailroadRepeat(
+            inner: RailroadScale(inner: c("Scaled up"), scale: 1.5),
+            repeat: RailroadScale(inner: c("Scaled down"), scale: 0.75)))
     }
 
     func testAnnotation() throws {
@@ -156,9 +157,9 @@ final class VocabularyTests: XCTestCase {
 
     func testVerticalGrid() throws {
         try check("vertical-grid", RailroadVerticalGrid(children: [
-                    RailroadSequence(children: [RailroadSimpleStart(), t("yes"), RailroadSimpleEnd()]),
-                    RailroadSequence(children: [RailroadSimpleStart(), t("no"), RailroadSimpleEnd()]),
-                  ]), bare: true)
+            RailroadSequence(children: [RailroadSimpleStart(), t("yes"), RailroadSimpleEnd()]),
+            RailroadSequence(children: [RailroadSimpleStart(), t("no"), RailroadSimpleEnd()])
+        ]), bare: true)
     }
 
     func testComment() throws {
@@ -179,9 +180,9 @@ final class VocabularyTests: XCTestCase {
 
     func testEmpty() throws {
         try check("empty", RailroadChoice(children: [
-                    RailroadLabeledBox(inner: RailroadEmpty(), label: c("Default")),
-                    t("ASC"), t("DESC"),
-                  ]))
+            RailroadLabeledBox(inner: RailroadEmpty(), label: c("Default")),
+            t("ASC"), t("DESC")
+        ]))
     }
 
     func testSubsequence() throws {

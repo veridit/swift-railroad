@@ -25,7 +25,6 @@ GROUPS = [
     ("Start, end and continuation", ["start-end", "simple-start-end", "continuation", "continuation-start-end"]),
     ("Layout", ["vertical-grid", "horizontal-grid", "alignment", "aligned-rule-labels"]),
 ]
-HELPERS = ("t(", "nt(", "c(")
 
 
 def test_bodies():
@@ -36,7 +35,7 @@ def test_bodies():
         slug = re.search(r'try check\("([^"]+)"', body).group(1)
         lines = [l[8:] if l.startswith("        ") else l.strip() for l in body.split("\n")]
         code = "\n".join(lines)
-        # `try check("slug", NODE[, bare: true])` -> `let diagram = NODE`
+        # `try check("slug", NODE[, bare: true])` -> `let node = NODE`
         code = re.sub(r'try check\("[^"]+", ', "let node = ", code)
         code = re.sub(r"(, bare: true)?\)\s*$", "", code)
         bodies[slug] = code

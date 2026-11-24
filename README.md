@@ -173,9 +173,9 @@ Use `Empty` where a node is required but no input is consumed. The first alterna
 
 ```swift
 let node = RailroadChoice(children: [
-            RailroadLabeledBox(inner: RailroadEmpty(), label: c("Default")),
-            t("ASC"), t("DESC"),
-          ])
+    RailroadLabeledBox(inner: RailroadEmpty(), label: c("Default")),
+    t("ASC"), t("DESC")
+])
 ```
 
 #### `subsequence`
@@ -296,8 +296,9 @@ let node = RailroadSequence(children: [
 Enlarge the inline comment and shrink the return-path comment, keeping their connecting rails aligned.
 
 ```swift
-let node = RailroadRepeat(inner: RailroadScale(inner: c("Scaled up"), scale: 1.5),
-                                  repeat: RailroadScale(inner: c("Scaled down"), scale: 0.75))
+let node = RailroadRepeat(
+    inner: RailroadScale(inner: c("Scaled up"), scale: 1.5),
+    repeat: RailroadScale(inner: c("Scaled down"), scale: 0.75))
 ```
 
 ### Start, end and continuation
@@ -354,9 +355,9 @@ Place independent diagrams above one another, with no connecting path.
 
 ```swift
 let node = RailroadVerticalGrid(children: [
-            RailroadSequence(children: [RailroadSimpleStart(), t("yes"), RailroadSimpleEnd()]),
-            RailroadSequence(children: [RailroadSimpleStart(), t("no"), RailroadSimpleEnd()]),
-          ])
+    RailroadSequence(children: [RailroadSimpleStart(), t("yes"), RailroadSimpleEnd()]),
+    RailroadSequence(children: [RailroadSimpleStart(), t("no"), RailroadSimpleEnd()])
+])
 ```
 
 #### `horizontal-grid`
