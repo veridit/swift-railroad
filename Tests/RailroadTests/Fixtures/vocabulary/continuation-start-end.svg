@@ -1,0 +1,98 @@
+<svg height="42" width="152" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="railroad" viewBox="0 0 152 42">
+<style type="text/css">
+svg.railroad {
+background-color: hsl(30, 20%, 95%);
+background-size: 15px 15px;
+background-image: linear-gradient(to right, rgba(30, 30, 30, .05) 1px, transparent 1px),
+		  linear-gradient(to bottom, rgba(30, 30, 30, .05) 1px, transparent 1px);
+}
+
+svg.railroad rect.railroad_canvas {
+stroke-width: 0px;
+fill: none;
+}
+
+svg.railroad path {
+stroke-width: 3px;
+stroke: black;
+fill: none;
+}
+
+svg.railroad .continuation circle,
+svg.railroad .continuation-start circle,
+svg.railroad .continuation-end circle {
+fill: black;
+stroke: none;
+}
+
+svg.railroad .debug {
+stroke-width: 1px;
+stroke: red;
+}
+
+svg.railroad text {
+font: 14px monospace;
+text-anchor: middle;
+}
+
+svg.railroad .nonterminal text {
+font-weight: bold;
+}
+
+svg.railroad text.comment {
+font: italic 12px monospace;
+}
+
+svg.railroad rect,
+svg.railroad .annotation > path.annotation-marker {
+stroke-width: 3px;
+stroke: black;
+fill:hsl(-290, 70%, 90%);
+}
+
+svg.railroad g.labeledbox > rect,
+svg.railroad .annotation > path.annotation-connector {
+stroke-width: 1px;
+stroke: grey;
+stroke-dasharray: 5px;
+fill: rgb(90, 90, 150);
+fill-opacity: .1;
+}
+
+svg.railroad .annotation > path.annotation-connector {
+fill: none;
+}
+
+/* Annotation markers use wavy arrows distinct from rail traversal arrows. */
+
+svg.railroad .annotation > path.annotation-direction {
+stroke-width: 2px;
+stroke: black;
+}
+</style>
+<title>
+Three dots mark omitted portions before and after the fragment.</title>
+<rect width="100%" height="100%" class="railroad_canvas"/>
+<g class="sequence">
+<g class="continuation-start">
+<circle cx="13" cy="21" r="2.5" fill-opacity="0.25"/>
+<circle cx="21" cy="21" r="2.5" fill-opacity="0.6"/>
+<circle cx="29" cy="21" r="2.5" fill-opacity="1"/>
+<path d=" M 34 21 h 6"/>
+</g>
+<g class="nonterminal">
+<rect x="50" y="10" height="22" width="52"/>
+<text x="76" y="26">
+expr</text>
+</g>
+<g class="continuation-end">
+<circle cx="139" cy="21" r="2.5" fill-opacity="0.25"/>
+<circle cx="131" cy="21" r="2.5" fill-opacity="0.6"/>
+<circle cx="123" cy="21" r="2.5" fill-opacity="1"/>
+<path d=" M 112 21 h 6"/>
+</g>
+<path d=" M 40 21 h 10"/>
+<path d=" M 102 21 h 10"/>
+</g>
+</svg>
+

@@ -344,6 +344,8 @@ struct RailroadDiagram: RailroadNode {
     var root: any RailroadNode
     var css: String?
     var extraAttributes: [String: String] = [:]
+    /// Text for a `<title>` element (hover text and accessibility description).
+    var title: String?
 
     var entryHeight: Int { 0 }
     var height: Int { Self.padding + root.height + Self.padding }
@@ -363,6 +365,11 @@ struct RailroadDiagram: RailroadNode {
             out.writeRaw("<style type=\"text/css\">\n")
             out.writeRaw(css)
             out.writeRaw("</style>\n")
+        }
+        if let title {
+            out.writeRaw("<title>\n")
+            out.writeText(title)
+            out.writeRaw("</title>\n")
         }
         let rect = out.startElement("rect")
         rect.attr("width", "100%")
