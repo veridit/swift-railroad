@@ -61,6 +61,63 @@ final class VocabularyTests: XCTestCase {
     private func nt(_ s: String) -> RailroadNonTerminal { RailroadNonTerminal(label: s) }
     private func c(_ s: String) -> RailroadComment { RailroadComment(text: s) }
 
+    func testLink() throws {
+        try check("link", RailroadLink(inner: nt("expr"),
+            uri: "https://docs.rs/railroad/latest/railroad/struct.NonTerminal.html"))
+    }
+
+    func testScale() throws {
+        try check("scale", RailroadRepeat(inner: RailroadScale(inner: c("Scaled up"), scale: 1.5),
+                                          repeat: RailroadScale(inner: c("Scaled down"), scale: 0.75)))
+    }
+
+    func testAnnotation() throws {
+        try check("annotation", RailroadAnnotation(inner: RailroadLabeledBox(
+            inner: nt("statement"), label: c("Only at top level"))))
+    }
+
+    func testNegativeLookahead() throws {
+        try check("negative-lookahead", RailroadSequence(children: [
+            RailroadAnnotation.newAhead(inner: RailroadLabeledBox(
+                inner: RailroadSequence(children: [
+                    RailroadChoice(children: [t("\""), t("\\"), nt("CR")]), RailroadContinuation()
+                ]), label: c("Must not match ahead"))),
+            nt("ASCII")
+        ]))
+    }
+
+    func testNegativeLookbehind() throws {
+        try check("negative-lookbehind", RailroadSequence(children: [
+            nt("DECIMAL"),
+            RailroadAnnotation.newBehind(inner: RailroadLabeledBox(
+                inner: RailroadSequence(children: [RailroadContinuation(), t("0")]),
+                label: c("Must not match behind")))
+        ]))
+    }
+
+    func testContinuation() throws {
+        try check("continuation", RailroadSequence(children: [t("BEGIN"), RailroadContinuation(), t("END")]))
+    }
+
+    func testContinuationStartEnd() throws {
+        try check("continuation-start-end", RailroadSequence(children: [
+            RailroadContinuationStart(), nt("expr"), RailroadContinuationEnd()
+        ]), bare: true)
+    }
+
+    func testAlignment() throws {
+        let placements: [(RailroadVerticalAlignment, String)] = [(.top, "Top"), (.centered, "Centered"), (.bottom, "Bottom")]
+        let rows: [any RailroadNode] = placements.map { vertical, label in
+            RailroadSequence(children: [RailroadSimpleStart(),
+                RailroadLabeledBox(inner: RailroadAlignment(
+                    inner: RailroadChoice(children: [t("yes"), t("no")]), minWidth: 120, minHeight: 110,
+                    horizontal: .centered, vertical: vertical, connectRails: true), label: c(label)),
+                RailroadSimpleEnd()
+            ])
+        }
+        try check("alignment", RailroadHorizontalGrid(children: rows), bare: true)
+    }
+
     func testTerminal() throws {
         try check("terminal", t("if"))
     }
@@ -127,7 +184,39 @@ final class VocabularyTests: XCTestCase {
                   ]))
     }
 
-    // PORT-PENDING: subsequence, multi-choice, horizontal-grid, aligned-rule-labels,
-    // alignment, scale, link, annotation, negative-lookahead, negative-lookbehind,
-    // continuation, continuation-start-end. Workers add them as the nodes land.
+    func testSubsequence() throws {
+        let parts = ["H", "M", "S"].map { unit in
+            RailroadSequence(children: [nt("digits"), t(unit)])
+        }
+        try check("subsequence", RailroadSequence(children: [
+            t("PT"), RailroadSubsequence(children: parts)
+        ]))
+    }
+
+    func testMultiChoice() throws {
+        try check("multi-choice", RailroadMultiChoice(columns: [
+            [t("true"), t("false")], [t("null"), t("undefined")]
+        ]))
+    }
+
+    func testHorizontalGrid() throws {
+        try check("horizontal-grid", RailroadHorizontalGrid(children: [
+            RailroadSequence(children: [RailroadSimpleStart(), t("yes"), RailroadSimpleEnd()]),
+            RailroadSequence(children: [RailroadSimpleStart(), t("no"), RailroadSimpleEnd()])
+        ]), bare: true)
+    }
+
+    func testAlignedRuleLabels() throws {
+        let labels = ["expr", "statement", "item"].map(c)
+        let columnWidth = labels.map(\.width).max()!
+        let rows = labels.map { label in
+            RailroadHorizontalGrid(children: [
+                RailroadAlignment(inner: label, minWidth: columnWidth, minHeight: 0,
+                                  horizontal: .start, vertical: .top, connectRails: false),
+                RailroadSequence(children: [RailroadSimpleStart(), nt("body"), RailroadSimpleEnd()])
+            ])
+        }
+        try check("aligned-rule-labels", RailroadVerticalGrid(children: rows), bare: true)
+    }
+
 }
