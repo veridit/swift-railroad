@@ -1,5 +1,8 @@
 # swift-railroad-diagrams
 
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fveridit%2Fswift-railroad-diagrams%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/veridit/swift-railroad-diagrams)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fveridit%2Fswift-railroad-diagrams%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/veridit/swift-railroad-diagrams)
+
 Railroad (syntax) diagrams as SVG, in pure Swift. No dependencies; runs on every
 Apple platform and on Linux.
 
