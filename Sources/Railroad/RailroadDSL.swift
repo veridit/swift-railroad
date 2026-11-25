@@ -70,6 +70,11 @@ public enum RailroadDSL {
         }
 
         mutating func root() throws -> [any RailroadNode] {
+            // pest only skips implicit whitespace between tokens, so the Rust
+            // parser rejects input that starts with whitespace.
+            if pos < chars.count, chars[pos] == " " || chars[pos] == "\t" || chars[pos] == "\n" {
+                throw ParseError(offset: pos, message: "unexpected whitespace")
+            }
             var result = [try lboxExpr()]
             while true {
                 skipWhitespace()

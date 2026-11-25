@@ -6,12 +6,12 @@ import Foundation
 /// Independent children laid out left to right without connecting paths.
 public struct RailroadHorizontalGrid: RailroadNode {
     public init(children: [any RailroadNode] = [], attributes: [String: String] = [:]) {
-        self.children = children
+        self.children = children.measured
         self.attributes = attributes
     }
 
     static let spacing = Railroad.arcRadius
-    public var children: [any RailroadNode] = []
+    public var children: [any RailroadNode] = [] { didSet { children = children.measured } }
     public var attributes: [String: String] = [:]
 
     public var entryHeight: Int { 0 }
@@ -32,12 +32,12 @@ public struct RailroadHorizontalGrid: RailroadNode {
 /// Ordered selection of one or more children, allowing prefixes and suffixes to be skipped.
 public struct RailroadSubsequence: RailroadNode {
     public init(children: [any RailroadNode] = [], attributes: [String: String] = [:]) {
-        self.children = children
+        self.children = children.measured
         self.attributes = attributes
     }
 
     static let spacing = 10
-    public var children: [any RailroadNode] = []
+    public var children: [any RailroadNode] = [] { didSet { children = children.measured } }
     public var attributes: [String: String] = [:]
 
     private func routingWidth(_ child: any RailroadNode) -> Int {
@@ -103,13 +103,13 @@ public struct RailroadSubsequence: RailroadNode {
 /// Alternatives in columns, with separate entry and exit routing for each alternative.
 public struct RailroadMultiChoice: RailroadNode {
     public init(columns: [[any RailroadNode]] = [], attributes: [String: String] = [:]) {
-        self.columns = columns
+        self.columns = columns.map(\.measured)
         self.attributes = attributes
     }
 
     static let spacing = 10
     static let columnSpacing = Railroad.arcRadius
-    public var columns: [[any RailroadNode]] = []
+    public var columns: [[any RailroadNode]] = [] { didSet { columns = columns.map(\.measured) } }
     public var attributes: [String: String] = [:]
 
     private struct ColumnLayout {

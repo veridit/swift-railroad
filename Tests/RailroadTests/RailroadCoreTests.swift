@@ -281,4 +281,49 @@ final class RailroadCoreTests: XCTestCase {
             tag.finishEmpty()
         }
     }
+
+    // The next three tests come from George Nachman's fixes in iTerm2 commit
+    // 9d2236a6 (https://github.com/gnachman/iTerm2/commit/9d2236a6).
+
+    func test_encode_minimal_escapes_specials_followed_by_combining_marks() {
+        // Each of these is one Character but two code points; Rust escapes per code point.
+        XCTAssertEqual(RailroadRenderer.escapeMinimal("a<\u{301}b &\u{301} x\"\u{301}'\u{301}>\u{301}"),
+                       "a&lt;\u{301}b &amp;\u{301} x&quot;\u{301}&#x27;\u{301}&gt;\u{301}")
+    }
+
+    func test_deeply_nested_wrappers_render() throws {
+        // Without cached geometry this took time exponential in depth (minutes at
+        // depth 12, effectively forever at 200).
+        var dsl = "\"a\""
+        for i in 0..<200 {
+            dsl = "[\"x\" \(dsl)]#`g\(i)`"
+        }
+        let svg = try RailroadDSL.svg(dsl, css: nil)
+        XCTAssertTrue(svg.contains("g199"))
+    }
+
+    func test_column_width_matches_unicode_width_crate() {
+        // Values from unicode-width 0.2.3's UnicodeWidthStr::width, including the
+        // sequence rules that a per-character table cannot express.
+        let cases: [(String, Int)] = [
+            ("\t", 1), ("\u{7F}", 1), ("\u{AD}", 0), ("\u{1F321}", 1), ("\u{1F321}\u{FE0F}", 2),
+            ("\u{2764}", 1), ("\u{2764}\u{FE0F}", 2), ("\u{263A}\u{FE0E}", 1), ("1\u{FE0F}\u{20E3}", 2),
+            ("\u{1F44D}\u{1F3FD}", 2), ("\u{1F469}\u{200D}\u{1F4BB}", 2), ("\u{1F1FA}\u{1F1F8}", 2),
+            ("\u{1F1FA}", 1), ("\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}", 2),
+            ("\u{644}\u{627}", 1), ("\u{5DC}\u{200D}\u{5D0}", 2), ("\u{2018}\u{FE01}", 2),
+            ("\r\n", 1), ("\u{1160}", 0), ("\u{1100}\u{1161}", 2),
+        ]
+        for (text, columns) in cases {
+            XCTAssertEqual(RailroadTextWidth.columns(text), columns, text.unicodeScalars.map { String($0.value, radix: 16) }.joined(separator: " "))
+        }
+    }
+
+    func test_mutating_a_child_after_init_keeps_geometry_correct() {
+        // The library exposes children as `var`; a change must re-measure.
+        var seq = RailroadSequence(children: [RailroadTerminal(label: "a")])
+        let before = seq.width
+        seq.children.append(RailroadTerminal(label: "longer label"))
+        XCTAssertGreaterThan(seq.width, before)
+        XCTAssertEqual(seq.width, RailroadSequence(children: seq.children).width)
+    }
 }

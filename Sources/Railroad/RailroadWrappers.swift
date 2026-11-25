@@ -12,11 +12,11 @@ import Foundation
 /// A child with an upper bypass path. Port of `Optional`.
 public struct RailroadOptional: RailroadNode {
     public init(inner: any RailroadNode, attributes: [String: String] = [:]) {
-        self.inner = inner
+        self.inner = RailroadMeasured(inner)
         self.attributes = attributes
     }
 
-    public var inner: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
     public var attributes: [String: String] = [:]
 
     public var entryHeight: Int {
@@ -48,15 +48,15 @@ public struct RailroadOptional: RailroadNode {
 /// A forward child and a return child in the opposite direction. Port of `Repeat`.
 public struct RailroadRepeat: RailroadNode {
     public init(inner: any RailroadNode, `repeat`: any RailroadNode, attributes: [String: String] = [:]) {
-        self.inner = inner
-        self.`repeat` = `repeat`
+        self.inner = RailroadMeasured(inner)
+        self.`repeat` = RailroadMeasured(`repeat`)
         self.attributes = attributes
     }
 
     static let spacing = 10
 
-    public var inner: any RailroadNode
-    public var `repeat`: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
+    public var `repeat`: any RailroadNode { didSet { `repeat` = RailroadMeasured(`repeat`) } }
     public var attributes: [String: String] = [:]
 
     private var heightBetweenEntries: Int {
@@ -103,16 +103,16 @@ public struct RailroadRepeat: RailroadNode {
 /// A frame with a label above its child. Port of `LabeledBox`.
 public struct RailroadLabeledBox: RailroadNode {
     public init(inner: any RailroadNode, label: any RailroadNode, attributes: [String: String] = [:]) {
-        self.inner = inner
-        self.label = label
+        self.inner = RailroadMeasured(inner)
+        self.label = RailroadMeasured(label)
         self.attributes = attributes
     }
 
     static let spacing = 8
     static let padding = 8
 
-    public var inner: any RailroadNode
-    public var label: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
+    public var label: any RailroadNode { didSet { label = RailroadMeasured(label) } }
     public var attributes: [String: String] = [:]
 
     private var labelSpacing: Int { label.height > 0 ? Self.spacing : 0 }
@@ -142,13 +142,13 @@ public struct RailroadLabeledBox: RailroadNode {
 /// Unconnected children laid out top to bottom. Port of `VerticalGrid`.
 public struct RailroadVerticalGrid: RailroadNode {
     public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
-        self.children = children
+        self.children = children.measured
         self.attributes = attributes
     }
 
     static let spacing = Railroad.arcRadius
 
-    public var children: [any RailroadNode]
+    public var children: [any RailroadNode] { didSet { children = children.measured } }
     public var attributes: [String: String] = [:]
 
     public var entryHeight: Int { 0 }

@@ -12,13 +12,13 @@ import Foundation
 /// Children side by side, joined by short lines. Port of `Sequence`.
 public struct RailroadSequence: RailroadNode {
     public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
-        self.children = children
+        self.children = children.measured
         self.attributes = attributes
     }
 
     static let spacing = 10
 
-    public var children: [any RailroadNode]
+    public var children: [any RailroadNode] { didSet { children = children.measured } }
     public var attributes: [String: String] = [:]
 
     public var entryHeight: Int { children.maxEntryHeight }
@@ -50,14 +50,14 @@ public struct RailroadSequence: RailroadNode {
 /// Children connected from top to bottom. Port of `Stack`.
 public struct RailroadStack: RailroadNode {
     public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
-        self.children = children
+        self.children = children.measured
         self.attributes = attributes
     }
 
     static let spacing = 10
     static let padding = Railroad.arcRadius * 2
 
-    public var children: [any RailroadNode]
+    public var children: [any RailroadNode] { didSet { children = children.measured } }
     public var attributes: [String: String] = [:]
 
     private var sidePadding: Int { children.count > 1 ? Self.padding : 0 }
@@ -128,13 +128,13 @@ public struct RailroadStack: RailroadNode {
 /// Alternatives arranged vertically. Port of `Choice`.
 public struct RailroadChoice: RailroadNode {
     public init(children: [any RailroadNode], attributes: [String: String] = [:]) {
-        self.children = children
+        self.children = children.measured
         self.attributes = attributes
     }
 
     static let spacing = 10
 
-    public var children: [any RailroadNode]
+    public var children: [any RailroadNode] { didSet { children = children.measured } }
     public var attributes: [String: String] = [:]
 
     private var innerPadding: Int { children.count > 1 ? Railroad.arcRadius * 2 : 0 }

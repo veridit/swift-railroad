@@ -8,7 +8,7 @@
 //  This file holds the pieces every node shares: the Node protocol, the SVG
 //  writer (notactuallysvg.rs), path data, and the leaf nodes from lib.rs.
 //  The output must stay byte-identical to the Rust library; the reference
-//  diagrams in tests/railroad/svg check that.
+//  diagrams in tests/railroad/fixtures.json check that.
 //
 
 import Foundation
@@ -63,6 +63,36 @@ public protocol RailroadNode {
 
 public extension RailroadNode {
     var heightBelowEntry: Int { height - entryHeight }
+}
+
+/// A node whose geometry is computed once, when it is wrapped. Containers ask
+/// their children for sizes many times while laying out, so without this the
+/// cost grows exponentially with nesting depth. Every container and wrapper
+/// stores its children wrapped in one of these.
+struct RailroadMeasured: RailroadNode {
+    let node: any RailroadNode
+    let entryHeight: Int
+    let height: Int
+    let width: Int
+
+    init(_ node: any RailroadNode) {
+        if let measured = node as? RailroadMeasured {
+            self = measured
+            return
+        }
+        self.node = node
+        entryHeight = node.entryHeight
+        height = node.height
+        width = node.width
+    }
+
+    func render(_ out: RailroadRenderer, x: Int, y: Int, hDir: RailroadHDir) {
+        node.render(out, x: x, y: y, hDir: hDir)
+    }
+}
+
+extension Array where Element == any RailroadNode {
+    var measured: [any RailroadNode] { map { RailroadMeasured($0) } }
 }
 
 extension Array where Element == any RailroadNode {
@@ -236,20 +266,22 @@ public final class RailroadRenderer {
         return String(value)
     }
 
+    /// Works on code points, not Characters, so a special character followed
+    /// by a combining mark is still escaped, as in Rust.
     static func escapeMinimal(_ s: String) -> String {
-        guard s.contains(where: { "\"&<>'".contains($0) }) else {
+        guard s.unicodeScalars.contains(where: { "\"&<>'".unicodeScalars.contains($0) }) else {
             return s
         }
         var result = ""
         result.reserveCapacity(s.utf8.count)
-        for c in s {
+        for c in s.unicodeScalars {
             switch c {
             case "\"": result += "&quot;"
             case "&": result += "&amp;"
             case "<": result += "&lt;"
             case ">": result += "&gt;"
             case "'": result += "&#x27;"
-            default: result.append(c)
+            default: result.unicodeScalars.append(c)
             }
         }
         return result
@@ -346,7 +378,7 @@ public struct RailroadPathData {
 /// The outermost `<svg>` element. Port of `Diagram` in lib.rs.
 public struct RailroadDiagram: RailroadNode {
     public init(root: any RailroadNode, css: String? = nil, extraAttributes: [String: String] = [:], title: String? = nil) {
-        self.root = root
+        self.root = RailroadMeasured(root)
         self.css = css
         self.extraAttributes = extraAttributes
         self.title = title
@@ -354,7 +386,7 @@ public struct RailroadDiagram: RailroadNode {
 
     static let padding = 10
 
-    public var root: any RailroadNode
+    public var root: any RailroadNode { didSet { root = RailroadMeasured(root) } }
     public var css: String?
     public var extraAttributes: [String: String] = [:]
     /// Text for a `<title>` element (hover text and accessibility description).

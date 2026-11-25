@@ -34,7 +34,9 @@ final class RailroadDSLTests: XCTestCase {
     }
 
     func test_invalid_inputs_are_rejected() {
-        for source in ["", "[", "\"unterminated", "<>", "{}", "'a' ,", "a"] {
+        // Rust's pest grammar rejects leading whitespace but allows trailing whitespace.
+        XCTAssertTrue(RailroadDSL.isValid("\"a\"\n"))
+        for source in ["", "[", "\"unterminated", "<>", "{}", "'a' ,", "a", " \"a\"", "\n!", " "] {
             XCTAssertThrowsError(try RailroadDSL.parse(source), source) { error in
                 XCTAssertTrue(error is RailroadDSL.ParseError, "\(source): \(error)")
             }

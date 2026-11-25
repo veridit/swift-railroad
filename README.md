@@ -444,3 +444,15 @@ against reference SVGs made by the Rust crate:
 
 MIT, see [LICENSE](LICENSE). Original work © 2018 Lukas Lueg. Swift port © 2026
 Veridit AS.
+
+`RailroadWidthTable.swift` is generated from the
+[unicode-width](https://github.com/unicode-rs/unicode-width) crate 0.2.3,
+© 2015 The Rust Project Developers, MIT License.
+
+## Thanks
+
+George Nachman (iTerm2) reviewed the port and ran a differential fuzz of about
+115,000 inputs against the Rust original. His fixes are in 0.1.1: cached
+geometry (layout was exponential in nesting depth), exact unicode-rs column
+widths, per-code-point XML escaping, and rejection of leading whitespace as pest
+does. See [iTerm2 9d2236a6](https://github.com/gnachman/iTerm2/commit/9d2236a6).

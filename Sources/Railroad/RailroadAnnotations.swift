@@ -18,13 +18,13 @@ public enum RailroadLinkTarget: String {
 /// A child wrapped in a clickable SVG link.
 public struct RailroadLink: RailroadNode {
     public init(inner: any RailroadNode, uri: String, target: RailroadLinkTarget? = nil, attributes: [String: String] = [:]) {
-        self.inner = inner
+        self.inner = RailroadMeasured(inner)
         self.uri = uri
         self.target = target
         self.attributes = attributes
     }
 
-    public var inner: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
     public var uri: String
     public var target: RailroadLinkTarget? = nil
     public var attributes: [String: String] = [:]
@@ -62,7 +62,7 @@ public enum RailroadVerticalAlignment {
 /// Reserve minimum dimensions without resizing the child.
 public struct RailroadAlignment: RailroadNode {
     public init(inner: any RailroadNode, minWidth: Int, minHeight: Int, horizontal: RailroadHorizontalAlignment, vertical: RailroadVerticalAlignment, connectRails: Bool, attributes: [String: String] = [:]) {
-        self.inner = inner
+        self.inner = RailroadMeasured(inner)
         self.minWidth = minWidth
         self.minHeight = minHeight
         self.horizontal = horizontal
@@ -71,7 +71,7 @@ public struct RailroadAlignment: RailroadNode {
         self.attributes = attributes
     }
 
-    public var inner: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
     public var minWidth: Int
     public var minHeight: Int
     public var horizontal: RailroadHorizontalAlignment
@@ -112,14 +112,14 @@ public struct RailroadAlignment: RailroadNode {
 
 /// Uniform scaling, either adjusted to integral rail coordinates or precise.
 public struct RailroadScale: RailroadNode {
-    public var inner: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
     public let requestedScale: Double
     public let precise: Bool
     public var attributes: [String: String] = [:]
 
     public init(inner: any RailroadNode, scale: Double, precise: Bool = false) {
         precondition(scale.isFinite && scale >= 0, "scale must be finite and nonnegative")
-        self.inner = inner
+        self.inner = RailroadMeasured(inner)
         self.requestedScale = scale
         self.precise = precise
     }
@@ -230,14 +230,14 @@ fileprivate func railroadRustFloat(_ value: Double) -> String {
 /// A diamond annotation marker above a child.
 public struct RailroadAnnotation: RailroadNode {
     public init(inner: any RailroadNode, direction: Direction = .none, attributes: [String: String] = [:]) {
-        self.inner = inner
+        self.inner = RailroadMeasured(inner)
         self.direction = direction
         self.attributes = attributes
     }
 
     /// Direction of the annotation marker along the rail.
     public enum Direction { case none, ahead, behind }
-    public var inner: any RailroadNode
+    public var inner: any RailroadNode { didSet { inner = RailroadMeasured(inner) } }
     public var direction: Direction = .none
     public var attributes: [String: String] = [:]
 
